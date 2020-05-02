@@ -72,18 +72,17 @@ class StockDataRetriever {
           firstCandle.closingPrice = _currentStockPrice;
         }
 
-        currentStockPrice = _currentStockPrice; // Execute loop while 5 min candle isn't achieved
+        currentStockPrice = _currentStockPrice; // Execute loop while 5 min candle-modules isn't achieved
 
         let interval = setInterval(function () {
-          // Update
           if (!firstCandle.closingTime) {
             rawDataRetriever.retrieveCurrentTime().then(currentTime => {
-              // Check if 5 minute candle has been achieved
+              // Check if 5 minute candle-modules has been achieved
               if (currentTime.split(':')[1].split(':')[0] % 5 === 0) {
                 firstCandle.closingTime = new Date();
                 firstCandle.closingPrice = currentStockPrice;
               } else {
-                // Setting first candle params
+                // Setting first candle-modules params
                 if (currentStockPrice > firstCandle.topPrice) firstCandle.topPrice = currentStockPrice;
                 if (firstCandle.bottomPrice > currentStockPrice) firstCandle.bottomPrice = currentStockPrice;
               }

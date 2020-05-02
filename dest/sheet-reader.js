@@ -38,6 +38,5 @@ class SheetReader {
 
 }
 
-;
 var _default = SheetReader;
 exports.default = _default;

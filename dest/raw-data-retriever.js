@@ -60,6 +60,5 @@ class rawDataRetriever {
 
 }
 
-;
 var _default = rawDataRetriever;
 exports.default = _default;
