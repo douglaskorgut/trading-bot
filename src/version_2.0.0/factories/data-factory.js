@@ -1,12 +1,13 @@
-import Orderer from './data-modules/orderer';
-import Stocker from './data-modules/stocker';
+import orderer from './data-modules/orderer';
+import stocker from './data-modules/stocker';
+import sheetReader from './utils/sheet-reader';
 
 class DataFactory {
 
     constructor() {
 
         this.currentStockPrice = (stockName) => new Promise(async (resolve, reject) => {
-            let currentPrice = await Stocker.retrieveCurrentStockPrice(stockName).catch( (error) => reject(error));
+            let currentPrice = await sheetReader.retrieveStockPriceFromSheet(stockName).catch( (error) => reject(error));
             resolve(currentPrice);
         });
 
@@ -14,10 +15,10 @@ class DataFactory {
             let order;
             switch (type) {
                 case 'buy':
-                    order = Orderer.createBuyOrder(candleContext);
+                    order = orderer.createBuyOrder(candleContext);
                     break;
                 case 'sell':
-                    order = Orderer.createSellOrder(candleContext);
+                    order = orderer.createSellOrder(candleContext);
                     break;
                 default:
                     reject(`${type} operation not found!`);
@@ -25,6 +26,12 @@ class DataFactory {
             }
             resolve(order);
         });
+
+        this.forbiddenPeriods = () => new Promise (async (resolve,reject)=> {
+           let forbiddenPeriods =  await stocker.retrieveForbiddenPeriods().catch( (error) => reject(error));
+           resolve(forbiddenPeriods);
+        });
+
     };
 }
 

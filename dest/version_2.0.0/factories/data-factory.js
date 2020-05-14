@@ -9,12 +9,14 @@ var _orderer = _interopRequireDefault(require("./data-modules/orderer"));
 
 var _stocker = _interopRequireDefault(require("./data-modules/stocker"));
 
+var _sheetReader = _interopRequireDefault(require("./utils/sheet-reader"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 class DataFactory {
   constructor() {
     this.currentStockPrice = stockName => new Promise(async (resolve, reject) => {
-      let currentPrice = await _stocker.default.retrieveCurrentStockPrice(stockName).catch(error => reject(error));
+      let currentPrice = await _sheetReader.default.retrieveStockPriceFromSheet(stockName).catch(error => reject(error));
       resolve(currentPrice);
     });
 
@@ -36,6 +38,11 @@ class DataFactory {
       }
 
       resolve(order);
+    });
+
+    this.forbiddenPeriods = () => new Promise(async (resolve, reject) => {
+      let forbiddenPeriods = await _stocker.default.retrieveForbiddenPeriods().catch(error => reject(error));
+      resolve(forbiddenPeriods);
     });
   }
 

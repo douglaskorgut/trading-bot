@@ -5,46 +5,49 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-var _xlsx = _interopRequireDefault(require("xlsx"));
+require("core-js/modules/es6.regexp.split");
+
+require("core-js/modules/web.dom.iterable");
+
+require("core-js/modules/es6.regexp.to-string");
+
+var _fs = _interopRequireDefault(require("fs"));
+
+var _sheetReader = _interopRequireDefault(require("../utils/sheet-reader"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 class Stocker {
   constructor() {
-    const workbook = _xlsx.default.readFile("/Users/douglaskorgut/Desktop/trading-bot-js/files/winm20_streaming.xlsx");
+    this.retrieveForbiddenPeriods = () => new Promise(async (resolve, reject) => {
+      _fs.default.readFile("/home/ubivisnb24/WebstormProjects/trading-bot/files/forbidden_periods.json", (err, data) => {
+        if (err) {
+          reject("Error retrieving forbidden periods ".concat(err.message));
+        }
 
-    const firstSheetName = workbook.SheetNames[0];
-    this._worksheet = workbook.Sheets[firstSheetName];
+        try {
+          const forbiddenPeriodsJSON = JSON.parse(data.toString());
+          Object.values(forbiddenPeriodsJSON).forEach(forbiddenPeriods => {
+            const resultForbiddenPeriods = forbiddenPeriods.map(forbiddenPeriod => {
+              const interval = forbiddenPeriod.split("/");
+              return {
+                'begin': interval[0],
+                'end': interval[1]
+              };
+            }, []);
+            resolve(resultForbiddenPeriods);
+          });
+        } catch (error) {
+          reject("Error retrieving forbidden periods: ".concat(error.message));
+        }
+      });
+    });
 
     this.retrieveCurrentStockPrice = stockName => new Promise(async (resolve, reject) => {
-      let cellAddress = null;
-
-      switch (stockName.toUpperCase()) {
-        case 'WINM20':
-          cellAddress = "A1";
-          break;
-
-        case 'WINJ20':
-          cellAddress = 'F1';
-          break;
-
-        default:
-          reject("".concat(stockName, " not found on registered stocks"));
-      }
-
-      if (cellAddress) {
-        try {
-          const cell = this._worksheet[cellAddress];
-
-          if (cell) {
-            resolve(cell.v);
-          } else {
-            reject("".concat(cellAddress, " is empty. No value will be returned!"));
-          }
-        } catch (error) {
-          reject(error);
-        }
-      }
+      let currentStockPrice = await _sheetReader.default.retrieveStockPriceFromSheet(stockName).catch(error => {
+        reject(error);
+      });
+      resolve(currentStockPrice);
     });
   }
 
