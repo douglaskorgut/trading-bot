@@ -15,7 +15,53 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 class CandleFactory {
   constructor() {
-    this.retrieveFirstCandle = stockName => new Promise(async (resolve, reject) => {
+    this.buildCandleContext = () => new Promise(async (resolve, reject) => {
+      let candleContext = {
+        startingTime: new Date(),
+        endTime: undefined,
+        candles: undefined,
+        top: undefined,
+        bottom: undefined
+      };
+    });
+
+    this.startCandle = stockName => new Promise(async (resolve, reject) => {
+      let currentStockPrice = await _sheetReader.default.retrieveStockPriceFromSheet(stockName).catch(error => {
+        reject(error);
+      });
+      resolve({
+        'stockName': stockName,
+        'openingPrice': currentStockPrice,
+        'closingPrice': undefined,
+        'topPrice': undefined,
+        'bottomPrice': undefined,
+        'openingTime': new Date(),
+        'closingTime': undefined
+      });
+    });
+
+    this.finishCandle = (startedCandle, topPrice, bottomPrice) => new Promise(async (resolve, reject) => {
+      let finishedCandle;
+      let currentStockPrice = await _sheetReader.default.retrieveStockPriceFromSheet(startedCandle.stockName).catch(error => {
+        reject(error);
+      });
+
+      try {
+        finishedCandle = {
+          'openingPrice': startedCandle.openingPrice,
+          'closingPrice': currentStockPrice,
+          'topPrice': topPrice,
+          'bottomPrice': bottomPrice,
+          'openingTime': startedCandle.openingTime,
+          'closingTime': new Date()
+        };
+        resolve(finishedCandle);
+      } catch (e) {
+        reject(e);
+      }
+    });
+
+    this.buildFirstCandle = stockName => new Promise(async (resolve, reject) => {
       let firstCandle = {
         'openingPrice': undefined,
         'closingPrice': undefined,
@@ -25,7 +71,7 @@ class CandleFactory {
         'closingTime': undefined
       };
       let currentStockPrice = await _sheetReader.default.retrieveStockPriceFromSheet(stockName).catch(error => {
-        resolve(error);
+        reject(error);
       });
 
       if (!firstCandle.openingPrice) {
@@ -49,7 +95,11 @@ class CandleFactory {
             // Setting first candle-modules params
             if (currentStockPrice > firstCandle.topPrice) firstCandle.topPrice = currentStockPrice;
             if (firstCandle.bottomPrice > currentStockPrice) firstCandle.bottomPrice = currentStockPrice;
-          }
+          } // REMOVE
+
+
+          firstCandle.closingTime = new Date();
+          firstCandle.closingPrice = currentStockPrice;
         } else {
           clearInterval(interval);
           resolve(firstCandle);

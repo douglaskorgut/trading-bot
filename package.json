@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "./node_modules/.bin/babel src --out-dir dest"
+    "build": "./node_modules/.bin/babel src --out-dir dest",
+    "test": "./node_modules/.bin/babel dest/spec/run-spec.js"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +17,8 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.8.7",
+    "jasmine-es6": "^0.4.3",
+    "mongoose": "^5.9.11",
     "xlsx": "^0.15.6"
   }
 }
