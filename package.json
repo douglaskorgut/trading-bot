@@ -19,6 +19,6 @@
     "@babel/polyfill": "^7.8.7",
     "jasmine-es6": "^0.4.3",
     "mongoose": "^5.9.11",
-    "xlsx": "^0.15.6"
+    "xlsx": "^0.17.0"
   }
 }
